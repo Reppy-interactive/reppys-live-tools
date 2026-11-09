@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LIVE Tools — See it in action</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap">
+<style>
+  :root{
+    --bg:#070708; --stage:#0a0a0d; --panel:#16141a; --panel2:#1e1b24;
+    --ink:#fff; --muted:#9b9ba6; --line:#2a2733;
+    --red:#e3192f; --red2:#ff3850; --gold:#ffd65a;
+    --disp:"Anton","Arial Narrow",system-ui,sans-serif;
+    --body:"Inter",system-ui,-apple-system,sans-serif;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{background:transparent;color:var(--ink);font-family:var(--body);margin:0;
+    display:flex;align-items:center;justify-content:center;padding:0}
+
+  .stage{position:relative;width:100%;max-width:400px;aspect-ratio:9/16;max-height:100%;overflow:hidden;border-radius:22px;
+    background:radial-gradient(130% 80% at 50% 0%,#17121a 0%,var(--stage) 55%,#050506 100%);
+    box-shadow:0 20px 60px -18px rgba(227,25,47,.4),0 0 0 1px var(--line);isolation:isolate}
+  .glow{position:absolute;inset:-20% -20% auto -20%;height:60%;z-index:0;pointer-events:none;
+    background:radial-gradient(60% 60% at 50% 30%,rgba(227,25,47,.45),transparent 70%);filter:blur(10px);animation:drift 9s ease-in-out infinite alternate}
+  .vignette{position:absolute;inset:0;z-index:5;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.55) 100%)}
+
+  .scene{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:30px 26px;gap:14px;opacity:0;visibility:hidden}
+  .scene.active{opacity:1;visibility:visible}
+
+  .eyebrow{font-weight:800;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--red2)}
+  .huge{font-family:var(--disp);line-height:.92;text-transform:uppercase;font-size:clamp(46px,16vw,74px);margin:0}
+  .huge .r{color:var(--red2)}
+  .big{font-family:var(--disp);font-size:clamp(34px,11vw,52px);line-height:.95;text-transform:uppercase;margin:0}
+  .sub{font-size:clamp(15px,4.3vw,18px);color:var(--muted);max-width:30ch;line-height:1.5;margin:0}
+  .tag{display:inline-block;font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(255,214,90,.4);border-radius:999px;padding:6px 12px}
+
+  .scene.active .huge,.scene.active .big{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+  .scene.active .eyebrow{animation:rise .5s .05s both}
+  .scene.active .sub{animation:rise .6s .12s both}
+  .scene.active .tag{animation:pop .5s .2s both}
+
+  .ring{position:absolute;width:62%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(227,25,47,.5);z-index:1}
+  .scene.active .ring{animation:ring 3.4s ease-out both}
+
+  .toast{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--red2);border-radius:14px;padding:13px 16px;max-width:300px;text-align:left;box-shadow:0 14px 30px rgba(0,0,0,.5)}
+  .av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--disp);font-size:18px;background:linear-gradient(135deg,var(--red),#8f0d1c);color:#fff}
+  .toast b{font-size:15px}.toast span{display:block;font-size:12.5px;color:var(--muted);margin-top:1px}
+  .scene.active .toast{animation:slidein .6s cubic-bezier(.2,.9,.2,1) both}
+  .scene.active .toast.t2{animation-delay:.9s}
+  .scene.active .toast.t3{animation-delay:1.7s}
+
+  .wave{display:flex;align-items:center;gap:5px;height:66px}
+  .wave i{width:7px;border-radius:4px;background:linear-gradient(var(--red2),var(--red));height:16px}
+  .scene.active .wave i{animation:wave 1s ease-in-out infinite alternate}
+
+  .wheel{width:168px;height:168px;border-radius:50%;position:relative;background:conic-gradient(var(--red) 0 20%,#1a1820 0 40%,var(--gold) 0 60%,#1a1820 0 80%,var(--red2) 0 100%);box-shadow:0 0 0 6px #0d0b11,0 0 34px rgba(227,25,47,.45)}
+  .wheel::after{content:"";position:absolute;inset:38%;border-radius:50%;background:#0d0b11;box-shadow:0 0 0 3px var(--gold)}
+  .pin{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:16px solid var(--gold);z-index:3}
+  .scene.active .wheel{animation:spin 3.2s cubic-bezier(.08,.7,.08,1) both}
+
+  .flow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  .chip{font-weight:800;font-size:15px;padding:11px 15px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+  .chip.red{background:linear-gradient(135deg,var(--red),#8f0d1c);border:none}
+  .arrow{color:var(--red2);font-weight:800;font-size:22px}
+  .scene.active .chip{animation:pop .5s both}
+  .scene.active .chip.c2{animation-delay:.5s}
+
+  .goal{width:290px;max-width:100%;text-align:left}
+  .goal .lab{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:7px;font-weight:600}
+  .track{height:16px;border-radius:999px;background:#201d27;overflow:hidden;border:1px solid var(--line)}
+  .fill{height:100%;width:8%;border-radius:999px;background:linear-gradient(90deg,var(--red),var(--gold))}
+  .scene.active .fill{animation:fill 2.4s .2s cubic-bezier(.2,.8,.2,1) forwards}
+
+  .list{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:320px}
+  .list span{font-weight:700;font-size:14px;padding:8px 13px;border-radius:999px;background:var(--panel2);border:1px solid var(--line)}
+  .scene.active .list span{animation:pop .4s both}
+  .scene.active .list span:nth-child(2){animation-delay:.12s}
+  .scene.active .list span:nth-child(3){animation-delay:.24s}
+  .scene.active .list span:nth-child(4){animation-delay:.36s}
+  .scene.active .list span:nth-child(5){animation-delay:.48s}
+  .scene.active .list span:nth-child(6){animation-delay:.6s}
+
+  .price{font-family:var(--disp);font-size:clamp(40px,13vw,58px);color:var(--gold);margin:0;line-height:1}
+  .url{font-weight:800;font-size:13.5px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:9px 15px;word-break:break-all;max-width:100%}
+  .cta-btn{font-family:var(--disp);font-size:22px;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,var(--red2),#8f0d1c);border-radius:14px;padding:13px 30px;box-shadow:0 12px 30px rgba(227,25,47,.5)}
+  .scene.active .cta-btn{animation:pulse 1.4s ease-in-out .4s infinite}
+
+  .bars{position:absolute;top:12px;left:12px;right:12px;z-index:6;display:flex;gap:5px}
+  .bars i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}
+  .bars i b{display:block;height:100%;width:0;background:var(--red2)}
+  .bars i.done b{width:100%}
+  .mark{position:absolute;bottom:14px;left:0;right:0;z-index:6;text-align:center;font-weight:800;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes pop{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+  @keyframes slidein{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+  @keyframes wave{from{height:14px;opacity:.7}to{height:62px;opacity:1}}
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(1260deg)}}
+  @keyframes fill{to{width:90%}}
+  @keyframes ring{0%{transform:scale(.4);opacity:0}40%{opacity:1}100%{transform:scale(1.25);opacity:0}}
+  @keyframes drift{from{transform:translateX(-8%)}to{transform:translateX(8%)}}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  @media (prefers-reduced-motion:reduce){.scene *{animation:none!important}.glow{animation:none}.fill{width:90%}.wave i{height:40px}}
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="glow"></div>
+    <div class="bars" id="bars"></div>
+
+    <section class="scene active" data-dur="3800">
+      <div class="ring"></div>
+      <div class="eyebrow">Reppy's Interactives</div>
+      <h1 class="huge">LIVE<br><span class="r">Tools</span></h1>
+      <p class="sub">Turn your TikTok LIVE into an interactive show.</p>
+    </section>
+    <section class="scene" data-dur="2200"><h2 class="big">One app.<br><span style="color:var(--red2)">Not ten.</span></h2><p class="sub">Everything your LIVE needs, in one place.</p></section>
+    <section class="scene" data-dur="3400">
+      <div class="eyebrow">Alerts</div><h2 class="big">Every gift,<br>on screen</h2>
+      <div class="toast"><div class="av">O</div><div><b>Ollie</b><span>sent Galaxy &times;5</span></div></div>
+      <div class="toast t2"><div class="av">M</div><div><b>Mia</b><span>followed you</span></div></div>
+      <div class="toast t3"><div class="av">J</div><div><b>Jay</b><span>subscribed &mdash; Superfan</span></div></div>
+    </section>
+    <section class="scene" data-dur="3200">
+      <div class="eyebrow">Text-to-speech</div><h2 class="big">Viewers<br>talk live</h2>
+      <div class="wave"><i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.2s"></i></div>
+      <p class="sub">AI voices made on your PC &mdash; even cloned custom voices.</p>
+    </section>
+    <section class="scene" data-dur="3400">
+      <div class="eyebrow">Gift-triggered actions</div><h2 class="big">Gifts control<br>your game</h2>
+      <div class="flow"><span class="chip red">Gift sent</span><span class="arrow">&rarr;</span><span class="chip c2">Chaos Mode</span></div>
+      <p class="sub">Sounds, overlays, key presses or webhooks straight into your game.</p>
+    </section>
+    <section class="scene" data-dur="3600"><div class="eyebrow">Spin wheels</div><h2 class="big">Let chat<br>decide</h2><div style="position:relative"><div class="pin"></div><div class="wheel"></div></div></section>
+    <section class="scene" data-dur="3300">
+      <div class="eyebrow">Overlays</div><h2 class="big">Goals &amp;<br>leaderboards</h2>
+      <div class="goal"><div class="lab"><span>Gift goal</span><span>90%</span></div><div class="track"><div class="fill"></div></div></div>
+      <p class="sub">Live goals, leaderboards and hype meters for OBS.</p>
+    </section>
+    <section class="scene" data-dur="2600"><div class="eyebrow">Games</div><h2 class="big">Play with<br>your chat</h2><div class="list"><span>Plinko</span><span>Polls</span><span>Predictions</span><span>Wheels</span><span>Subathon</span><span>Song requests</span></div></section>
+    <section class="scene" data-dur="3400"><h2 class="big">All in<br>one app</h2><p class="sub">Alerts &middot; TTS &middot; Sounds &middot; Games &middot; Overlays &mdash; one Windows app that connects straight to your stream.</p><div class="tag">Windows 10 / 11</div></section>
+    <section class="scene" data-dur="4800">
+      <div class="eyebrow">Get Live Tools</div>
+      <p class="price">$9.99<span style="font-size:18px;color:var(--muted);font-family:var(--body);font-weight:600"> /mo</span></p>
+      <p class="sub" style="margin-top:-4px">Cancel anytime &middot; free download, unlock with a key</p>
+      <div class="cta-btn">Subscribe</div>
+      <div class="url">reppy-interactive.github.io/reppys-live-tools</div>
+    </section>
+
+    <div class="vignette"></div>
+    <div class="mark">Reppy's Interactive &middot; LIVE Tools</div>
+  </div>
+<script>
+(function(){
+  var scenes=[].slice.call(document.querySelectorAll('.scene'));
+  var barsWrap=document.getElementById('bars');
+  var durs=scenes.map(function(s){return +s.getAttribute('data-dur')||3000;});
+  scenes.forEach(function(){var i=document.createElement('i');i.innerHTML='<b></b>';barsWrap.appendChild(i);});
+  var segs=[].slice.call(barsWrap.children);
+  var idx=0,start=0;
+  function show(i){
+    scenes.forEach(function(s){s.classList.remove('active');});
+    void scenes[i].offsetWidth;scenes[i].classList.add('active');
+    segs.forEach(function(seg,k){var b=seg.querySelector('b');seg.className='';b.style.transition='none';b.style.width=k<i?'100%':'0';if(k<i)seg.classList.add('done');});
+    var nb=segs[i].querySelector('b');void nb.offsetWidth;nb.style.transition='width '+durs[i]+'ms linear';nb.style.width='100%';
+  }
+  function loop(now){var e=now-start;if(e>=durs[idx]){idx=(idx+1)%scenes.length;start=now;show(idx);}requestAnimationFrame(loop);}
+  show(0);setTimeout(function(){start=performance.now();requestAnimationFrame(loop);},600);
+})();
+</script>
+</body>
+</html>
