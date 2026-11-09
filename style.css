@@ -83,3 +83,8 @@ footer .sp { margin-left: auto; }
 .legal p, .legal li { color: #cfcfd6; margin-bottom: 10px; }
 .legal ul { margin: 0 0 10px 22px; }
 .legal a.back { display: inline-block; margin-bottom: 22px; }
+
+/* promo demo embed */
+#demo .demo-frame { display: flex; justify-content: center; margin-top: 22px; }
+#demo iframe { width: 360px; max-width: 100%; aspect-ratio: 9 / 16; border: 0; border-radius: 24px;
+  background: #0a0a0d; box-shadow: 0 24px 70px -22px rgba(227,25,47,.45), 0 0 0 1px #2a2733; }
